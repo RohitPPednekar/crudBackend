@@ -1,0 +1,10 @@
+{
+  
+    "username": "root",
+    "password": "password",
+    "database": "crud",
+    "host": "localhost",
+    "dialect": "mysql",
+    "logging": false
+  
+}
