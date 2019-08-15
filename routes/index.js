@@ -10,9 +10,20 @@ var router  = express.Router();
  * Output : JSON Object
  * Description :- Get route for main url for rendering category
 */
-router.get("/", (req,res)=>{
-    
-  models.category.findAll().then((data)=>{
+router.post("/getCategory", (req,res)=>{
+  
+  var offset;
+  var page = parseInt(req.body.page);
+		if(page != 'NaN' && page > 0) {
+			offset = (page - 1 ) * 10;
+		} else{
+			offset = 0;
+		}
+
+  models.category.findAll({
+    limit: 10,
+    offset : offset
+  }).then((data)=>{
       res.json({
           status :200,
           data : data
