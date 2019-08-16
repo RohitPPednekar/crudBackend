@@ -2,6 +2,11 @@
 
 module.exports = function(sequelize, DataTypes) {
   var product = sequelize.define("product", {
+    id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
     name: DataTypes.STRING(100),
 },
 {
