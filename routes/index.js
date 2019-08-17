@@ -1,7 +1,7 @@
 var express = require("express");
 var path = require('path');
 var bodyParser = require('body-parser');
-var models = require('../models');
+var models = require('../models/index.js');
 var router  = express.Router();
 
 
@@ -83,13 +83,15 @@ router.post("/getProducts", (req,res)=>{
 
 
 router.post('/addCategory',(req,res)=>{
-  models.category.find({
+  var id = req.body.id;
+  models.category.findOne({
     where:{
-      id : req.body.id
+      id : id
     }
   }).then((categoryData)=>{
-    if(!categoryData==null){
-      models.category.update({
+    if(categoryData!=null){
+      console.log("INSIDE if !!!")
+      categoryData.update({
         name : req.body.name
       }).then((updatedCategory)=>{
           if(updatedCategory){
@@ -106,13 +108,16 @@ router.post('/addCategory',(req,res)=>{
           
       })
     }else{
+      console.log("INSIDE ELSE !!!")
+
       models.category.create({
         name : req.body.name
       }).then((createdCategory)=>{
         if(createdCategory){
           res.json({
             status : 200,
-            message : "Created succesfully category !"
+            message : "Created succesfully category !",
+            data :createdCategory
           })
         }else{
           res.json({
@@ -126,22 +131,70 @@ router.post('/addCategory',(req,res)=>{
 })
 
 
-//TODO add product code left
+router.post('/addProduct',(req,res)=>{
+  var id = req.body.id;
+  models.product.findOne({
+    where:{
+      id : id
+    }
+  }).then((productData)=>{
+    if(productData!=null){
+      console.log("INSIDE if !!!")
+      productData.update({
+        name : req.body.name
+      }).then((updatedProduct)=>{
+          if(updatedProduct){
+            res.json({
+              status : 200,
+              message : "Product values updated !"
+            })
+          }else{
+            res.json({
+              status : 401,
+              message : "Some Error on server, Please try after some time !"
+            })
+          }
+          
+      })
+    }else{
+      console.log("INSIDE ELSE !!!")
+
+      models.product.create({
+        name : req.body.name
+      }).then((createdProduct)=>{
+        if(createdProduct){
+          res.json({
+            status : 200,
+            message : "Created succesfully category !",
+            data :createdProduct
+          })
+        }else{
+          res.json({
+            status : 401,
+            message : "Some Error on server, Please try after some time !"
+          })
+        }
+      })
+    }
+  })
+})
+
+
 
 router.post('/removeCategory',(req,res)=>{
-  models.category.find({
+  models.category.findOne({
     where:{
       id : req.body.id
     }
   }).then((categoryData)=>{
-    if(!categoryData==null){
+    if(categoryData!=null){
       //delete all the products related to category as there be no presence of category then
       models.product.destroy({
         where:{
           category_id : req.body.id
         }
       }).then((deletedProductsCategory)=>{
-          if(deletedProductsCategory){
+          
             models.category.destroy({
               where:{
                 id : req.body.id
@@ -159,12 +212,7 @@ router.post('/removeCategory',(req,res)=>{
                 })
               }  
             });    
-          }else{
-            res.json({
-              status : 401,
-              message : "Some Error on server, Please try after some time !"
-            })
-          }
+         
           
       })
     }else{
@@ -183,7 +231,7 @@ router.post('/removeProducts',(req,res)=>{
       id : req.body.id
     }
   }).then((productData)=>{
-    if(!productData==null){
+    if(productData!=null){
       //delete the product
       models.product.destroy({
         where:{

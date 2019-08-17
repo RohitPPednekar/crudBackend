@@ -2,25 +2,16 @@
 
 module.exports = function(sequelize, DataTypes) {
   var category = sequelize.define("category", {
-    id: {
-        type: sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
     name: DataTypes.STRING(100),
-},
-{
-    classMethods: {
-    	testfunction: function() {
-            var query = '';
-            query +='SELECT * from category'
-            
-            return sequelize.query(query, { type: sequelize.QueryTypes.SELECT});
-        },
-        
-    }
 });
 
     
+    category.testfunction= function() {
+        var query = '';
+        query +='SELECT * from category'
+        
+        return sequelize.query(query, { type: sequelize.QueryTypes.SELECT});
+    };
+        
     return category;
 };
