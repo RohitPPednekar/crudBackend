@@ -13,13 +13,13 @@ var router  = express.Router();
 router.post("/getCategory", (req,res)=>{
   
   var offset;
-  var page = parseInt(req.body.page);
+  var page = parseInt(req.body.pages);
 		if(page != 'NaN' && page > 0) {
-			offset = (page - 1 ) * 10;
+      offset = (page - 1 ) * 10;
 		} else{
-			offset = 0;
+      offset = 0;
 		}
-
+    
   models.category.findAll({
     limit: 10,
     offset : offset
@@ -52,20 +52,39 @@ router.post("/getProducts", (req,res)=>{
 			offset = (page - 1 ) * 10;
 		} else{
 			offset = 0;
-		}
+    }
+    var condition;
+  if(req.body.category_id!=undefined){
+    condition = {
+      attributes:['id','name'],
+      limit: 10,
+      offset : offset,
+      where : {
+        category_id : req.body.category_id
+      },
+      include :[
+        {
+          model : models.category,
+          attributes:['id','name'],
+        }
+      ]
+    }
+  }else{
+    condition = {
+      attributes:['id','name'],
+      limit: 10,
+      offset : offset,
+      include :[
+        {
+          model : models.category,
+          attributes:['id','name'],
+        }
+      ]
+    }
+  }
 
-  models.category.findAll({
-    attributes:['id','name'],
-    limit: 10,
-    offset : offset,
-    includes :[
-      {
-        model : models.product,
-        attributes:['id','name'],
-      }
-    ]
-  }).then((data)=>{
-    console.log("data---------------->"+JSON.stringify(data));
+  models.product.findAll(condition).then((data)=>{
+    
     if(data){
         res.json({
           status :200,
@@ -90,7 +109,7 @@ router.post('/addCategory',(req,res)=>{
     }
   }).then((categoryData)=>{
     if(categoryData!=null){
-      console.log("INSIDE if !!!")
+      
       categoryData.update({
         name : req.body.name
       }).then((updatedCategory)=>{
@@ -108,7 +127,7 @@ router.post('/addCategory',(req,res)=>{
           
       })
     }else{
-      console.log("INSIDE ELSE !!!")
+      
 
       models.category.create({
         name : req.body.name
@@ -139,7 +158,7 @@ router.post('/addProduct',(req,res)=>{
     }
   }).then((productData)=>{
     if(productData!=null){
-      console.log("INSIDE if !!!")
+      
       productData.update({
         name : req.body.name
       }).then((updatedProduct)=>{
@@ -157,10 +176,11 @@ router.post('/addProduct',(req,res)=>{
           
       })
     }else{
-      console.log("INSIDE ELSE !!!")
+
 
       models.product.create({
-        name : req.body.name
+        name : req.body.name,
+        category_id: req.body.category_id
       }).then((createdProduct)=>{
         if(createdProduct){
           res.json({
@@ -226,7 +246,7 @@ router.post('/removeCategory',(req,res)=>{
 
 
 router.post('/removeProducts',(req,res)=>{
-  models.product.find({
+  models.product.findOne({
     where:{
       id : req.body.id
     }
